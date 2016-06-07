@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 
+# input: a fedmsg topic which has ['meta']['usernames']
+#
+# output: a CSV file with fields:
+#
+# date, users1, users9, users40, usersrest, msgs1, msgs9, msgs40, msgsrest
+#
+# where and 1, 9, 40, rest correspond to activity from the cohort of 
+# users in the top 1%, next 9%, next 40% or rest in that quarter (where
+# quarter is a sliding 13-week window) and users is the count of users in
+# that cohort that week while msgs is overall work. display the user count
+# as a stacked (filled) line graph, and the msgs as a stacked percentage
+# chart
+#
+# todo: create those graphs here in addition to CSV
+
 import utils
 
 import fedmsg.meta
@@ -14,6 +29,10 @@ import datetime
 import logging
 import os
 import sys
+
+
+import collections
+
 #logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.ERROR)
 
@@ -34,14 +53,22 @@ verboten = [
 ]
 
 try:
-    os.makedirs('./data/%s' % discriminant)
+    os.makedirs('./data')
 except OSError:
     pass
 
 starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
 
+
+WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
+
+# 13 weeks = 1 quarter (rolling)
+ring        = collections.deque(maxlen=13)
+
+
 while starttime < datetime.datetime.now():
     endtime   = starttime + datetime.timedelta(7)
+    weekinfo  = WeekActions(starttime, {})
 
     print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
 
@@ -64,16 +91,29 @@ while starttime < datetime.datetime.now():
             raise "hell"
 
         for user in msg['meta']['usernames']:
-            users[user] = users.get(user, 0) + 1
+            if not '@' in user: # some msgs put email for anon users
+               weekinfo.useractions[user] = weekinfo.useractions.get(user, 0) + 1
 
         if i % 50 == 0:
             sys.stdout.write(".")
             sys.stdout.flush()
 
     print " done reading", starttime.strftime("%Y-%m-%d")
+    
+    ring.append(weekinfo)
 
-    for user in users:
-        print 'User: %20s  Actions: %4i' % (user, users[user])
+    # okay, so, bear with me here. Comments are for explaining confusing
+    # conceptual things in code, right? okay, hold on to your seats.
+    # The goal is to write the average for the quarter _around_ this week
+    # but since we're doing tihs on the fly rather than reading into the
+    # future, this loop tracks the latest with "starttime", but we're actually
+    # gonna write lines from 7 weeks earlier, because finally we have the
+    # needed info. so, we want the middle week, which is index 6 into the ring
+    try:
+         ring[6].week.strftime("%Y-%m-%d")
+    except IndexError:
+        pass
+    
 
     # and loop around
     starttime=endtime
