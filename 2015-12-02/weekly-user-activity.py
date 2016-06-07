@@ -58,7 +58,7 @@ try:
 except OSError:
     pass
 
-starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2016-06-01", "%Y-%m-%d")
 
 
 
@@ -82,7 +82,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
         if not starttime.strftime("%Y") in yearweeks:
             yearweeks[starttime.strftime("%Y")]=collections.Counter()
 
-        print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
+        print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d")),
 
         messages = utils.grep(
             rows_per_page=100,
@@ -180,5 +180,5 @@ for year in yeartotals.keys():
     with open('data/%s.userdata.%s.csv' % (discriminant,year), 'w') as f:
         f.write("%s,%s,%s,%s\n" % ("user","actions","weeks","firstseen"))
         for user in sorted(yeartotals[year], key=yeartotals[year].get, reverse=True):
-            f.write("%s,%s,%s,%s\n" % (user,yeartotals[year][user],yearweeks[year][user],firstseen[user]))
+            f.write("%s,%s,%s,%s\n" % (user,yeartotals[year][user],yearweeks[year][user],firstseen[user].strftime('%Y-%m-%d')))
             
