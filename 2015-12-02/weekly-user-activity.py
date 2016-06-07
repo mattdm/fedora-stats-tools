@@ -62,7 +62,7 @@ starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
 
 
 
-WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
+WeekActions = collections.namedtuple('WeekActions',['week','useractions','newusers'])
 
 yeartotals={}
 yearweeks={}
@@ -72,11 +72,12 @@ firstseen={}
 ring        = collections.deque(maxlen=13)
 
 with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
-    f.write("weekstart, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest\n")
+    f.write("weekstart, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest, newusers\n")
     f.flush()
     while starttime < datetime.datetime.now() + datetime.timedelta(42): # weeks in the future because see below
         endtime   = starttime + datetime.timedelta(7)
-        weekinfo  = WeekActions(starttime, collections.Counter())
+        newusers = 0
+        weekinfo  = WeekActions(starttime, collections.Counter(), newusers)
         if not starttime.strftime("%Y") in yeartotals:
             yeartotals[starttime.strftime("%Y")]=collections.Counter()
         if not starttime.strftime("%Y") in yearweeks:
@@ -106,6 +107,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                    weekinfo.useractions[user] += 1
                    yeartotals[starttime.strftime("%Y")][user] += 1
                    if not user in firstseen:
+                       newusers += 1
                        firstseen[user]=starttime # todo: make this actual first time, not first week
 
             
@@ -116,7 +118,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
         print       
         #pprint.pprint(dict(weekinfo.useractions))
         yearweeks[starttime.strftime("%Y")] += collections.Counter(list(weekinfo.useractions))
-        ring.append(weekinfo)
+        ring.append(weekinfo._replace(newusers=newusers))
         
          
 
@@ -170,7 +172,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
             #print "%s,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4])
 
             if any((bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4])):
-                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4]))
+                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers))
                 f.flush()
 
         # and loop around
