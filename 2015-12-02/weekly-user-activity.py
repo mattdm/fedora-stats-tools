@@ -34,8 +34,8 @@ import sys
 import collections
 import pprint
 
-logging.basicConfig(level=logging.DEBUG)
-#logging.basicConfig(level=logging.ERROR)
+#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 epoch = datetime.datetime.utcfromtimestamp(0)
 
@@ -58,8 +58,8 @@ try:
 except OSError:
     pass
 
-#starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
-starttime = datetime.datetime.strptime("2016-01-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
+
 
 
 WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
