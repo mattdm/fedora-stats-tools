@@ -57,7 +57,7 @@ try:
 except OSError:
     pass
 
-starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2013-01-01", "%Y-%m-%d")
 
 
 WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
@@ -68,7 +68,7 @@ ring        = collections.deque(maxlen=13)
 
 while starttime < datetime.datetime.now():
     endtime   = starttime + datetime.timedelta(7)
-    weekinfo  = WeekActions(starttime, {})
+    weekinfo  = WeekActions(starttime, collections.Counter())
 
     print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
 
@@ -84,7 +84,6 @@ while starttime < datetime.datetime.now():
         not_topic=verboten,
     )
 
-    users = {}
     for i, msg in enumerate(messages):
         # sanity check
         if msg['topic'] in verboten:
@@ -92,28 +91,32 @@ while starttime < datetime.datetime.now():
 
         for user in msg['meta']['usernames']:
             if not '@' in user: # some msgs put email for anon users
-               weekinfo.useractions[user] = weekinfo.useractions.get(user, 0) + 1
+               weekinfo.useractions[user] += 1
 
-        if i % 50 == 0:
-            sys.stdout.write(".")
-            sys.stdout.flush()
+        #if i % 50 == 0:
+        #    sys.stdout.write(".")
+        #    sys.stdout.flush()
 
-    print " done reading", starttime.strftime("%Y-%m-%d")
+    #print " done reading", starttime.strftime("%Y-%m-%d")
     
     ring.append(weekinfo)
 
     # okay, so, bear with me here. Comments are for explaining confusing
     # conceptual things in code, right? okay, hold on to your seats.
-    # The goal is to write the average for the quarter _around_ this week
+    # The goal is to write the average for the quarter _around_ each week
     # but since we're doing tihs on the fly rather than reading into the
     # future, this loop tracks the latest with "starttime", but we're actually
-    # gonna write lines from 7 weeks earlier, because finally we have the
-    # needed info. so, we want the middle week, which is index 6 into the ring
-    try:
-         ring[6].week.strftime("%Y-%m-%d")
-    except IndexError:
-        pass
+    # gonna write lines from 6 weeks earlier, because finally we have the
+    # needed info. so, we jump back 6 weeks (42 days) from starttime.
+    # this is the same as jumping back 7 elements in the deque (if it's that deep)
     
+    if len(ring)>6: #
+        workweek=ring[len(ring)-7] # jump back same amount into the deque
+        print worktime, workweek.week
+        
+        #userrank = {}
+        #userbucket = {}
+        
 
     # and loop around
     starttime=endtime
