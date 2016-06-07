@@ -58,7 +58,7 @@ try:
 except OSError:
     pass
 
-starttime = datetime.datetime.strptime("2016-06-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
 
 
 
