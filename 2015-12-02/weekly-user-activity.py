@@ -67,6 +67,7 @@ WeekActions = collections.namedtuple('WeekActions',['week','useractions','newuse
 yeartotals={}
 yearweeks={}
 firstseen={}
+lastseen={}
 
 # 13 weeks = 1 quarter (rolling)
 ring        = collections.deque(maxlen=13)
@@ -109,6 +110,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                    if not user in firstseen:
                        newusers += 1
                        firstseen[user]=starttime # todo: make this actual first time, not first week
+                   lastseen[user]=starttime
 
             
             if i % 50 == 0:
@@ -180,7 +182,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
 
 for year in yeartotals.keys():
     with open('data/%s.userdata.%s.csv' % (discriminant,year), 'w') as f:
-        f.write("%s,%s,%s,%s\n" % ("user","actions","weeks","firstseen"))
+        f.write("%s,%s,%s,%s,%s\n" % ("user","actions","weeks","firstseen","lastseen"))
         for user in sorted(yeartotals[year], key=yeartotals[year].get, reverse=True):
-            f.write("%s,%s,%s,%s\n" % (user,yeartotals[year][user],yearweeks[year][user],firstseen[user].strftime('%Y-%m-%d')))
+            f.write("%s,%s,%s,%s,%s\n" % (user,yeartotals[year][user],yearweeks[year][user],firstseen[user].strftime('%Y-%m-%d'),lastseen[user].strftime('%Y-%m-%d')))
             
