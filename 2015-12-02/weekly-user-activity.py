@@ -66,6 +66,7 @@ WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
 ring        = collections.deque(maxlen=13)
 
 with open('data/%s.csv' % (discriminant), 'w') as f:
+    f.write("date, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest\n")
     while starttime < datetime.datetime.now():
         endtime   = starttime + datetime.timedelta(7)
         weekinfo  = WeekActions(starttime, collections.Counter())
