@@ -4,7 +4,7 @@
 #
 # output: a CSV file with fields:
 #
-# date, users1, users9, users40, usersrest, msgs1, msgs9, msgs40, msgsrest
+# date, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest
 #
 # where and 1, 9, 40, rest correspond to activity from the cohort of 
 # users in the top 1%, next 9%, next 40% or rest in that quarter (where
@@ -57,7 +57,7 @@ try:
 except OSError:
     pass
 
-starttime = datetime.datetime.strptime("2013-01-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
 
 
 WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
@@ -65,59 +65,91 @@ WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
 # 13 weeks = 1 quarter (rolling)
 ring        = collections.deque(maxlen=13)
 
+with open('data/%s.csv' % (discriminant), 'w') as f:
+    while starttime < datetime.datetime.now():
+        endtime   = starttime + datetime.timedelta(7)
+        weekinfo  = WeekActions(starttime, collections.Counter())
 
-while starttime < datetime.datetime.now():
-    endtime   = starttime + datetime.timedelta(7)
-    weekinfo  = WeekActions(starttime, collections.Counter())
+        print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
 
-    print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
+        messages = utils.grep(
+            rows_per_page=100,
+            meta='usernames',
+            start=int((starttime-epoch).total_seconds()),
+            end=int((endtime - epoch).total_seconds()),
+            order='asc',  # Start at the beginning, end at now.
+            topic=discriminant,
+            # Cut this stuff out, because its just so spammy.
+            not_user=['koschei', 'anonymous'],
+            not_topic=verboten,
+        )
 
-    messages = utils.grep(
-        rows_per_page=100,
-        meta='usernames',
-        start=int((starttime-epoch).total_seconds()),
-        end=int((endtime - epoch).total_seconds()),
-        order='asc',  # Start at the beginning, end at now.
-        topic=discriminant,
-        # Cut this stuff out, because its just so spammy.
-        not_user=['koschei', 'anonymous'],
-        not_topic=verboten,
-    )
+        for i, msg in enumerate(messages):
+            # sanity check
+            if msg['topic'] in verboten:
+                raise "hell"
 
-    for i, msg in enumerate(messages):
-        # sanity check
-        if msg['topic'] in verboten:
-            raise "hell"
+            for user in msg['meta']['usernames']:
+                if not '@' in user: # some msgs put email for anon users
+                   weekinfo.useractions[user] += 1
 
-        for user in msg['meta']['usernames']:
-            if not '@' in user: # some msgs put email for anon users
-               weekinfo.useractions[user] += 1
+            if i % 50 == 0:
+                sys.stdout.write(".")
+                sys.stdout.flush()
 
-        #if i % 50 == 0:
-        #    sys.stdout.write(".")
-        #    sys.stdout.flush()
+        ring.append(weekinfo)
 
-    #print " done reading", starttime.strftime("%Y-%m-%d")
-    
-    ring.append(weekinfo)
-
-    # okay, so, bear with me here. Comments are for explaining confusing
-    # conceptual things in code, right? okay, hold on to your seats.
-    # The goal is to write the average for the quarter _around_ each week
-    # but since we're doing tihs on the fly rather than reading into the
-    # future, this loop tracks the latest with "starttime", but we're actually
-    # gonna write lines from 6 weeks earlier, because finally we have the
-    # needed info. so, we jump back 6 weeks (42 days) from starttime.
-    # this is the same as jumping back 7 elements in the deque (if it's that deep)
-    
-    if len(ring)>6: #
-        workweek=ring[len(ring)-7] # jump back same amount into the deque
-        print worktime, workweek.week
+        # okay, so, bear with me here. Comments are for explaining confusing
+        # conceptual things in code, right? okay, hold on to your seats.
+        # The goal is to write the average for the quarter _around_ each week
+        # but since we're doing tihs on the fly rather than reading into the
+        # future, this loop tracks the latest with "starttime", but we're actually
+        # gonna write lines from 6 weeks earlier, because finally we have the
+        # needed info. so, we jump back 6 weeks (42 days) from starttime.
+        # this is the same as jumping back 7 elements in the deque (if it's that deep)
         
-        #userrank = {}
-        #userbucket = {}
-        
+        if len(ring)>6: 
 
-    # and loop around
-    starttime=endtime
-    
+            # first, we're bucketing all the users by percent of activity
+            usertotals=collections.Counter()
+            for week in ring:
+                usertotals += week.useractions
+            userrank = {}
+            userbucket = {}
+            i=len(usertotals)+1
+            for name in sorted(usertotals,key=usertotals.get):
+               userrank[name]=i
+               i-=1
+               if i<len(usertotals)*0.01: # top 1%
+                  userbucket[name]=1
+               elif i<len(usertotals)*0.10: # next 9% (otherwise top 10%)
+                  userbucket[name]=2
+               elif i<len(usertotals)*0.50: # next 40%
+                  userbucket[name]=3
+               else:                        # the bottom half
+                  userbucket[name]=4           
+
+            workweek=ring[len(ring)-7] # jump back same amount into the deque
+
+            bucketscores = {}
+            bucketscores[1]=0
+            bucketscores[2]=0
+            bucketscores[3]=0
+            bucketscores[4]=0
+            bucketcount = {}
+            bucketcount[1]=0
+            bucketcount[2]=0
+            bucketcount[3]=0
+            bucketcount[4]=0
+
+            for username in workweek.useractions.keys():
+                bucketscores[userbucket[username]] +=  workweek.useractions[username]
+                bucketcount[userbucket[username]]  +=  1
+                
+            print "%s,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4])
+
+            f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4]))
+
+        # and loop around
+        starttime=endtime
+        
