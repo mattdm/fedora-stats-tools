@@ -32,6 +32,7 @@ import sys
 
 
 import collections
+import pprint
 
 #logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.ERROR)
@@ -93,11 +94,9 @@ with open('data/%s.csv' % (discriminant), 'w') as f:
             for user in msg['meta']['usernames']:
                 if not '@' in user: # some msgs put email for anon users
                    weekinfo.useractions[user] += 1
+            
 
-            if i % 50 == 0:
-                sys.stdout.write(".")
-                sys.stdout.flush()
-
+        pprint.pprint(dict(weekinfo.useractions))
         ring.append(weekinfo)
 
         # okay, so, bear with me here. Comments are for explaining confusing
