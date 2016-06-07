@@ -34,8 +34,8 @@ import sys
 import collections
 import pprint
 
-#logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.ERROR)
 
 epoch = datetime.datetime.utcfromtimestamp(0)
 
@@ -58,19 +58,25 @@ try:
 except OSError:
     pass
 
-starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
+#starttime = datetime.datetime.strptime("2012-01-01", "%Y-%m-%d")
+starttime = datetime.datetime.strptime("2016-01-01", "%Y-%m-%d")
 
 
 WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
 
+yeartotals={}
+firstseen={}
+
 # 13 weeks = 1 quarter (rolling)
 ring        = collections.deque(maxlen=13)
 
-with open('data/%s.csv' % (discriminant), 'w') as f:
+with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
     f.write("date, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest\n")
-    while starttime < datetime.datetime.now():
+    while starttime < datetime.datetime.now() + datetime.timedelta(42): # weeks in the future because see below
         endtime   = starttime + datetime.timedelta(7)
         weekinfo  = WeekActions(starttime, collections.Counter())
+        if not starttime.strftime("%Y") in yeartotals:
+            yeartotals[starttime.strftime("%Y")]=collections.Counter()
 
         print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
 
@@ -94,10 +100,15 @@ with open('data/%s.csv' % (discriminant), 'w') as f:
             for user in msg['meta']['usernames']:
                 if not '@' in user: # some msgs put email for anon users
                    weekinfo.useractions[user] += 1
+                   yeartotals[starttime.strftime("%Y")][user] += 1
+                   if not user in firstseen:
+                       firstseen[user]=starttime # todo: make this actual first time, not first week
             
 
         pprint.pprint(dict(weekinfo.useractions))
         ring.append(weekinfo)
+        
+         
 
         # okay, so, bear with me here. Comments are for explaining confusing
         # conceptual things in code, right? okay, hold on to your seats.
@@ -152,4 +163,10 @@ with open('data/%s.csv' % (discriminant), 'w') as f:
 
         # and loop around
         starttime=endtime
-        
+
+for year in yeartotals.keys():
+    with open('data/%s.userdata.%s.csv' % (discriminant,year), 'w') as f:
+        f.write("%s,%s,%s\n" % ("user","actions","firstseen"))
+        for user in sorted(yeartotals[year], key=yeartotals[year].get, reverse=True):
+            f.write("%s,%s,%s\n" % (user,yeartotals[year][user],firstseen[user]))
+            
