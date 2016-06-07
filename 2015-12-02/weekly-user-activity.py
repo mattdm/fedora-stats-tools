@@ -163,6 +163,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
             print "%s,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4])
 
             f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4]))
+            f.sync()
 
         # and loop around
         starttime=endtime
