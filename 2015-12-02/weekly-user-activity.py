@@ -65,6 +65,7 @@ starttime = datetime.datetime.strptime("2016-01-01", "%Y-%m-%d")
 WeekActions = collections.namedtuple('WeekActions',['week','useractions'])
 
 yeartotals={}
+yearweeks={}
 firstseen={}
 
 # 13 weeks = 1 quarter (rolling)
@@ -77,6 +78,8 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
         weekinfo  = WeekActions(starttime, collections.Counter())
         if not starttime.strftime("%Y") in yeartotals:
             yeartotals[starttime.strftime("%Y")]=collections.Counter()
+        if not starttime.strftime("%Y") in yearweeks:
+            yearweeks[starttime.strftime("%Y")]=collections.Counter()
 
         print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d"))
 
@@ -104,8 +107,8 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                    if not user in firstseen:
                        firstseen[user]=starttime # todo: make this actual first time, not first week
             
-
         pprint.pprint(dict(weekinfo.useractions))
+        yearweeks += collections.Counter(list(weekinfo.useractions))
         ring.append(weekinfo)
         
          
@@ -166,7 +169,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
 
 for year in yeartotals.keys():
     with open('data/%s.userdata.%s.csv' % (discriminant,year), 'w') as f:
-        f.write("%s,%s,%s\n" % ("user","actions","firstseen"))
+        f.write("%s,%s,%s,%s\n" % ("user","actions","weeks","firstseen"))
         for user in sorted(yeartotals[year], key=yeartotals[year].get, reverse=True):
-            f.write("%s,%s,%s\n" % (user,yeartotals[year][user],firstseen[user]))
+            f.write("%s,%s,%s,%s\n" % (user,yeartotals[year][user],yearweeks[year][weeks],firstseen[user]))
             
