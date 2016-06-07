@@ -108,7 +108,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                        firstseen[user]=starttime # todo: make this actual first time, not first week
             
         pprint.pprint(dict(weekinfo.useractions))
-        yearweeks += collections.Counter(list(weekinfo.useractions))
+        yearweeks[starttime.strftime("%Y")] += collections.Counter(list(weekinfo.useractions))
         ring.append(weekinfo)
         
          
