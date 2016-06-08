@@ -86,7 +86,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
         print "Working on %s / %s" % (discriminant, starttime.strftime("%Y-%m-%d")),
 
         messages = utils.grep(
-            rows_per_page=10,
+            rows_per_page=100,
             meta='usernames',
             start=int((starttime-epoch).total_seconds()),
             end=int((endtime - epoch).total_seconds()),
