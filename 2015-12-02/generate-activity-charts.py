@@ -6,7 +6,7 @@ m.rcParams['font.size'] = 12
 m.rcParams['font.family'] = 'Overpass'
 m.rcParams['legend.frameon'] = False
 
-data=pandas.read_csv("org.fedoraproject.prod.git.receive.bucketed-activity.csv",parse_dates=[0])
+data=pandas.read_csv("data/org.fedoraproject.prod.git.receive.bucketed-activity.csv",parse_dates=[0])
 data.set_index('weekstart',inplace=True)
 
 graph=data[['users1','users9','users40','userrest']].rename(columns={"users1": "Top 1%","users9":"Top 9%","users40":"Top 40%","userrest":"Remaining 50%"}).plot.area(figsize=(16, 9),
