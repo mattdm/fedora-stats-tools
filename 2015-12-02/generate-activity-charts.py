@@ -35,7 +35,7 @@ m.rcParams['legend.frameon'] = True
 graph=data[['msgs1%','msgs9%','msgs40%','msgsrest%']].rename(columns={"msgs1%": "Top 1%","msgs9%":"Top 9%","msgs40%":"Top 40%","msgsrest%":"Remaining 50%"}).plot.area(figsize=(16, 9),
                                                               color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
                                                               grid=True,ylim=(0,100))
-plt.suptitle("Percent of Package Changes Each Week From Each Activiy Level Group",fontsize=24)
+plt.suptitle("Percent of Package Changes Each Week From Each Activity Level Group",fontsize=24)
 graph.set_title("",fontsize=16)
 graph.set_xlabel('')
 
