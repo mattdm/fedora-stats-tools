@@ -11,7 +11,7 @@ data.set_index('weekstart',inplace=True)
 
 graph=data[['users1','users9','users40','userrest']].rename(columns={"users1": "Top 1%","users9":"Top 9%","users40":"Top 40%","userrest":"Remaining 50%"}).plot.area(figsize=(16, 9),
                                                               color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
-                                                              grid=True)
+                                                              grid=True,yticks=range(0,301,25))
 #graph.legend(ncol=4)
 # totally abusing this.
 plt.suptitle("Number of Contributors Making Changes to Packages Each Week",fontsize=24)
@@ -41,3 +41,35 @@ graph.set_xlabel('')
 
 fig=graph.get_figure()
 fig.savefig('git.activity.share.svg',dpi=300)
+
+###############################################
+
+graph=data[['newusercount']].rename(columns={"newusercount": "New Users"}).plot.area(figsize=(16, 9),
+                                                              color='#579d1c',
+                                                              grid=True,legend=False)
+plt.suptitle("New Contributor Count Per Week",fontsize=24)
+graph.set_title('')
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('git.newusers.svg',dpi=300)
+
+#############################################
+
+data['newuseractions%']=100*data['newuseractions']/data['msgstotal']
+data['monthuseractions%']=100*data['monthuseractions']/data['msgstotal']
+data['yearuseractions%']=100*data['yearuseractions']/data['msgstotal']
+data['olderuseractions%']=100*data['olderuseractions']/data['msgstotal']
+
+
+
+
+m.rcParams['legend.frameon'] = True
+graph=data[['newuseractions%','monthuseractions%','yearuseractions%','olderuseractions%']][42:].rename(columns={"newuseractions%": "New This Week","monthuseractions%":"New This Month","yearuseractions%":"New This Year","olderuseractions%":"Old School"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,ylim=(0,100))
+plt.suptitle("Percent of Package Changes Each Week By Time Since Packager's First Action",fontsize=24)
+graph.set_title("",fontsize=16)
+graph.set_xlabel('')
+
+fig=graph.get_figure()
+fig.savefig('git.activity.length.svg',dpi=300)
