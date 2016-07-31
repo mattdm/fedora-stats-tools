@@ -145,3 +145,95 @@ graph.set_xlabel('')
 fig=graph.get_figure()
 fig.savefig('images/bodhi.activity.length.svg',dpi=300)
 
+
+################################################################################################################
+################################################################################################################
+
+datawiki=pandas.read_csv("data/org.fedoraproject.prod.wiki.article.edit.bucketed-activity.csv",parse_dates=[0])
+datawiki.set_index('weekstart',inplace=True)
+
+graph=datawiki[['users1','users9','users40','userrest']].rename(columns={"users1": "Top 1%","users9":"Top 9%","users40":"Top 40%","userrest":"Remaining 50%"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,yticks=range(0,301,25))
+#graph.legend(ncol=4)
+# totally abusing this.
+plt.suptitle("Number of Wiki Editors Each Week",fontsize=24)
+graph.set_title("Grouped by Quarterly Activity Level of Each Contributor",fontsize=16)
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/wiki.user.count.svg',dpi=300)
+
+#############################################
+
+datawiki['msgstotal']=datawiki[['msgs1','msgs9','msgs40','msgsrest']].sum(1)
+datawiki['msgs1%']=100*datawiki['msgs1']/datawiki['msgstotal']
+datawiki['msgs9%']=100*datawiki['msgs9']/datawiki['msgstotal']
+datawiki['msgs40%']=100*datawiki['msgs40']/datawiki['msgstotal']
+datawiki['msgsrest%']=100*datawiki['msgsrest']/datawiki['msgstotal']
+
+
+
+
+m.rcParams['legend.frameon'] = True
+graph=datawiki[['msgs1%','msgs9%','msgs40%','msgsrest%']].rename(columns={"msgs1%": "Top 1%","msgs9%":"Top 9%","msgs40%":"Top 40%","msgsrest%":"Remaining 50%"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,ylim=(0,100))
+plt.suptitle("Percent of Wiki Edits Each Week From Each Activity Level Group",fontsize=24)
+graph.set_title("",fontsize=16)
+graph.set_xlabel('')
+
+fig=graph.get_figure()
+fig.savefig('images/wiki.activity.share.svg',dpi=300)
+
+###############################################
+
+graph=datawiki[['newusercount']].rename(columns={"newusercount": "New Users"}).plot.area(figsize=(16, 9),
+                                                              color='#579d1c',
+                                                              grid=True,legend=False)
+plt.suptitle("New Wiki Contributor Count Per Week",fontsize=24)
+graph.set_title('')
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/wiki.newusers.svg',dpi=300)
+###############################################
+
+graph=datawiki[['newusercount']].rename(columns={"newusercount": "New Users"}).plot.area(figsize=(16, 9),
+                                                              color='#579d1c',
+                                                              grid=True,legend=False)
+plt.suptitle("New Wiki Contributor Count Per Week",fontsize=24)
+graph.set_title('')
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/wiki.newusers.svg',dpi=300)
+
+#############################################
+
+datawiki['newuseractions%']=100*datawiki['newuseractions']/datawiki['msgstotal']
+datawiki['monthuseractions%']=100*datawiki['monthuseractions']/datawiki['msgstotal']
+datawiki['yearuseractions%']=100*datawiki['yearuseractions']/datawiki['msgstotal']
+datawiki['olderuseractions%']=100*datawiki['olderuseractions']/datawiki['msgstotal']
+
+
+
+
+m.rcParams['legend.frameon'] = True
+graph=datawiki[['newuseractions%','monthuseractions%','yearuseractions%','olderuseractions%']][42:].rename(columns={"newuseractions%": "New This Week","monthuseractions%":"New This Month","yearuseractions%":"New This Year","olderuseractions%":"Old School"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,ylim=(0,100))
+plt.suptitle("Percent of Wiki Edits Each Week By Time Since Editor's First Edit",fontsize=24)
+graph.set_title("",fontsize=16)
+graph.set_xlabel('')
+
+fig=graph.get_figure()
+fig.savefig('images/wiki.activity.length.svg',dpi=300)
+
+###############################################
+
+graph=datawiki[['spamactions']].rename(columns={"spamactions": "Spam Edits"}).plot.area(figsize=(16, 9),
+                                                              color='#e00000',
+                                                              grid=True,legend=False)
+plt.suptitle("Spam Edits Per Week",fontsize=24)
+graph.set_title('')
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/wiki.spam.svg',dpi=300)
