@@ -83,8 +83,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
     f.flush()
     while starttime < datetime.datetime.now() + datetime.timedelta(42): # weeks in the future because see below
         endtime   = starttime + datetime.timedelta(7)
-        spamcount = 0
-        weekinfo  = WeekActions(starttime, collections.Counter(), collections.Counter(), collections.Counter(), spamcount)
+        weekinfo  = WeekActions(starttime, collections.Counter(), collections.Counter(), collections.Counter(), collections.Counter())
         if not starttime.strftime("%Y") in yeartotals:
             yeartotals[starttime.strftime("%Y")]=collections.Counter()
         if not starttime.strftime("%Y") in yearweeks:
@@ -122,7 +121,8 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                if user in bots:
                    continue
                if user in spammers:
-                   weekinfo.spamcount +=1
+                   weekinfo.spamcount['count'] +=1
+                   continue
                if '@' in user:
                    # some msgs put email for anon users
                    continue
@@ -204,10 +204,10 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                 bucketscores[userbucket[username]] +=  workweek.useractions[username]
                 bucketcount[userbucket[username]]  +=  1
                 
-            print "%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.spamcount)
+            print "%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.spamcount['count'])
 
             if any((bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4])):
-                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.spamcount))
+                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.spamcount['count']))
                 f.flush()
 
         # and loop around
