@@ -123,7 +123,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                        weekinfo.nonhuman['relengactions'] +=1
                    elif user == 'koschei':
                        weekinfo.nonhuman['koscheiactions'] +=1
-                   else
+                   else:
                        weekinfo.nonhuman['botactions'] +=1
                    continue
                if user in spammers:
