@@ -18,7 +18,7 @@ plt.suptitle("Number of Contributors Making Changes to Packages Each Week",fonts
 graph.set_title("Grouped by Quarterly Activity Level of Each Contributor",fontsize=16)
 graph.set_xlabel('')
 fig=graph.get_figure()
-fig.savefig('git.user.count.svg',dpi=300)
+fig.savefig('images/git.user.count.svg',dpi=300)
 
 #############################################
 
@@ -35,12 +35,12 @@ m.rcParams['legend.frameon'] = True
 graph=data[['msgs1%','msgs9%','msgs40%','msgsrest%']].rename(columns={"msgs1%": "Top 1%","msgs9%":"Top 9%","msgs40%":"Top 40%","msgsrest%":"Remaining 50%"}).plot.area(figsize=(16, 9),
                                                               color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
                                                               grid=True,ylim=(0,100))
-plt.suptitle("Percent of Package Changes Each Week From Each Activiy Level Group",fontsize=24)
+plt.suptitle("Percent of Package Changes Each Week From Each Activity Level Group",fontsize=24)
 graph.set_title("",fontsize=16)
 graph.set_xlabel('')
 
 fig=graph.get_figure()
-fig.savefig('git.activity.share.svg',dpi=300)
+fig.savefig('images/git.activity.share.svg',dpi=300)
 
 ###############################################
 
@@ -51,7 +51,7 @@ plt.suptitle("New Contributor Count Per Week",fontsize=24)
 graph.set_title('')
 graph.set_xlabel('')
 fig=graph.get_figure()
-fig.savefig('git.newusers.svg',dpi=300)
+fig.savefig('images/git.newusers.svg',dpi=300)
 
 #############################################
 
@@ -72,4 +72,4 @@ graph.set_title("",fontsize=16)
 graph.set_xlabel('')
 
 fig=graph.get_figure()
-fig.savefig('git.activity.length.svg',dpi=300)
+fig.savefig('images/git.activity.length.svg',dpi=300)
