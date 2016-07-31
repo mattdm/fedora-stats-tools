@@ -229,7 +229,7 @@ fig.savefig('images/wiki.activity.length.svg',dpi=300)
 
 ###############################################
 
-graph=datawiki[['spamactions']].rename(columns={"spamactions": "Spam Edits"}).plot.area(figsize=(16, 9),
+graph=datawiki[['spamactions']][146:].rename(columns={"spamactions": "Spam Edits"}).plot.area(figsize=(16, 9),
                                                               color='#e00000',
                                                               grid=True,legend=False)
 plt.suptitle("Spam Edits Per Week",fontsize=24)
