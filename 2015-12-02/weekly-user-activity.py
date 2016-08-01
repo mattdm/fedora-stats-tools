@@ -4,7 +4,7 @@
 #
 # output: a CSV file with fields:
 #
-# date, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest, newusers, actionsnew, actionsmonth, actionsyear, actionsolder, newspammers, spamactions, botactions, koscheiactions, relengactions
+# date, msgs1, msgs9, msgs40, msgsrest, users1, users9, users40, userrest, newusers, actionsnew, actionsmonth, actionsyear, actionsolder, newspammers, spamactions, botactions, relengactions
 #
 # where and 1, 9, 40, rest correspond to activity from the cohort of 
 # users in the top 1%, next 9%, next 40% or rest in that quarter (where
@@ -79,7 +79,7 @@ lastseen={}
 ring        = collections.deque(maxlen=13)
 
 with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
-    f.write("weekstart,msgs1,msgs9,msgs40,msgsrest,users1,users9,users40,userrest,newusercount,newuseractions,monthuseractions,yearuseractions,olderuseractions,newspammers,spamactions,botactions,koscheiactions,relengactions\n")
+    f.write("weekstart,msgs1,msgs9,msgs40,msgsrest,users1,users9,users40,userrest,newusercount,newuseractions,monthuseractions,yearuseractions,olderuseractions,newspammers,spamactions,botactions,relengactions\n")
     f.flush()
     while starttime < datetime.datetime.now() + datetime.timedelta(42): # weeks in the future because see below
         endtime   = starttime + datetime.timedelta(7)
@@ -101,7 +101,7 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                     order='asc',  # Start at the beginning, end at now.
                     topic=discriminant,
                     # Cut this stuff out, because its just so spammy.
-                    not_user=['anonymous'],
+                    not_user=['anonymous','koschei'],
                     not_topic=verboten,
                 )
             except IOError:
@@ -120,9 +120,6 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
             for user in msg['meta']['usernames']:
                if user == 'releng':
                    weekinfo.nonhuman['relengactions'] +=1
-                   continue
-               elif user == 'koschei':
-                   weekinfo.nonhuman['koscheiactions'] +=1
                    continue
                elif user in bots:
                    weekinfo.nonhuman['botactions'] +=1
@@ -214,10 +211,10 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                 bucketscores[userbucket[username]] +=  workweek.useractions[username]
                 bucketcount[userbucket[username]]  +=  1
               
-            print "%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.nonhuman['newspammers,'],workweek.nonhuman['spamactions,'], workweek.nonhuman['botactions'], workweek.nonhuman['koscheiactions'], workweek.nonhuman['relengactions'])
+            print "%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.nonhuman['newspammers,'],workweek.nonhuman['spamactions,'], workweek.nonhuman['botactions'], workweek.nonhuman['relengactions'])
 
             if any((bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4])):
-                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.nonhuman['newspammers,'],workweek.nonhuman['spamactions,'], workweek.nonhuman['botactions'], workweek.nonhuman['koscheiactions'], workweek.nonhuman['relengactions']))
+                f.write("%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n" % (workweek.week.strftime('%Y-%m-%d'), bucketscores[1], bucketscores[2], bucketscores[3], bucketscores[4], bucketcount[1], bucketcount[2], bucketcount[3], bucketcount[4],workweek.newusers['count'],workweek.actionsbyage['new'],workweek.actionsbyage['month'],workweek.actionsbyage['year'],workweek.actionsbyage['older'],workweek.nonhuman['newspammers,'],workweek.nonhuman['spamactions,'], workweek.nonhuman['botactions'], workweek.nonhuman['relengactions']))
                 f.flush()
 
         # and loop around
