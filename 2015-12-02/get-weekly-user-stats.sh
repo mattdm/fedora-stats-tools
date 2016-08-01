@@ -1,8 +1,8 @@
 #!/bin/sh
 
-./weekly-user-activity.py org.fedoraproject.prod.fedoratagger.rating.update
-./weekly-user-activity.py org.fedoraproject.prod.git.receive
-./weekly-user-activity.py org.fedoraproject.prod.bodhi.update.comment
-./weekly-user-activity.py org.fedoraproject.prod.wiki.article.edit
+until ./weekly-user-activity.py org.fedoraproject.prod.fedoratagger.rating.update; do sleep 5; done
+until ./weekly-user-activity.py org.fedoraproject.prod.git.receive; do sleep 5; done
+until ./weekly-user-activity.py org.fedoraproject.prod.bodhi.update.comment; do sleep 5; done
+until ./weekly-user-activity.py org.fedoraproject.prod.wiki.article.edit; do sleep 5; done
 
 
