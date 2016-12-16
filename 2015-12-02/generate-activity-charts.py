@@ -237,3 +237,73 @@ graph.set_title('')
 graph.set_xlabel('')
 fig=graph.get_figure()
 fig.savefig('images/wiki.spam.svg',dpi=300)
+
+###############################################
+###############################################
+datapagure=pandas.read_csv("data/io.pagure.prod.pagure.git.receive.bucketed-activity.csv",parse_dates=[0])
+datapagure.set_index('weekstart',inplace=True)
+
+graph=datapagure[['users1','users9','users40','userrest']].rename(columns={"users1": "Top 1%","users9":"Top 9%","users40":"Top 40%","userrest":"Remaining 50%"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,yticks=range(0,301,25))
+#graph.legend(ncol=4)
+# totally abusing this.
+plt.suptitle("Number of Contributors Making Commits to Pagure Each Week",fontsize=24)
+graph.set_title("Grouped by Quarterly Activity Level of Each Contributor",fontsize=16)
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/pagure.user.count.svg',dpi=300)
+
+#############################################
+
+datapagure['msgstotal']=datapagure[['msgs1','msgs9','msgs40','msgsrest']].sum(1)
+datapagure['msgs1%']=100*datapagure['msgs1']/datapagure['msgstotal']
+datapagure['msgs9%']=100*datapagure['msgs9']/datapagure['msgstotal']
+datapagure['msgs40%']=100*datapagure['msgs40']/datapagure['msgstotal']
+datapagure['msgsrest%']=100*datapagure['msgsrest']/datapagure['msgstotal']
+
+
+
+
+m.rcParams['legend.frameon'] = True
+graph=datapagure[['msgs1%','msgs9%','msgs40%','msgsrest%']].rename(columns={"msgs1%": "Top 1%","msgs9%":"Top 9%","msgs40%":"Top 40%","msgsrest%":"Remaining 50%"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,ylim=(0,100))
+plt.suptitle("Percent of Pagure Commits Each Week From Each Activity Level Group",fontsize=24)
+graph.set_title("",fontsize=16)
+graph.set_xlabel('')
+
+fig=graph.get_figure()
+fig.savefig('images/pagure.activity.share.svg',dpi=300)
+
+###############################################
+
+graph=datapagure[['newusercount']].rename(columns={"newusercount": "New Users"}).plot.area(figsize=(16, 9),
+                                                              color='#579d1c',
+                                                              grid=True,legend=False)
+plt.suptitle("New Pagure Contributor Count Per Week",fontsize=24)
+graph.set_title('')
+graph.set_xlabel('')
+fig=graph.get_figure()
+fig.savefig('images/pagure.newusers.svg',dpi=300)
+
+#############################################
+
+datapagure['newuseractions%']=100*datapagure['newuseractions']/datapagure['msgstotal']
+datapagure['monthuseractions%']=100*datapagure['monthuseractions']/datapagure['msgstotal']
+datapagure['yearuseractions%']=100*datapagure['yearuseractions']/datapagure['msgstotal']
+datapagure['olderuseractions%']=100*datapagure['olderuseractions']/datapagure['msgstotal']
+
+
+
+
+m.rcParams['legend.frameon'] = True
+graph=datapagure[['newuseractions%','monthuseractions%','yearuseractions%','olderuseractions%']][42:].rename(columns={"newuseractions%": "New This Week","monthuseractions%":"New This Month","yearuseractions%":"New This Year","olderuseractions%":"Old School"}).plot.area(figsize=(16, 9),
+                                                              color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
+                                                              grid=True,ylim=(0,100))
+plt.suptitle("Percent of Pagure Commits Each Week By Time Since Packager's First Action",fontsize=24)
+graph.set_title("",fontsize=16)
+graph.set_xlabel('')
+
+fig=graph.get_figure()
+fig.savefig('images/pagure.activity.length.svg',dpi=300)
