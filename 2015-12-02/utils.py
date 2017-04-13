@@ -30,7 +30,7 @@ def grep(tries=0, **kwargs):
         yield message
 
     for page in range(1, pages):
-        for attempt in range(10):
+        for attempt in range(20):
             try:
                 kwargs['page'] = page
                 response = requests.get(url, params=kwargs)

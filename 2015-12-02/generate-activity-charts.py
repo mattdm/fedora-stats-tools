@@ -245,7 +245,7 @@ datapagure.set_index('weekstart',inplace=True)
 
 graph=datapagure[['users1','users9','users40','userrest']].rename(columns={"users1": "Top 1%","users9":"Top 9%","users40":"Top 40%","userrest":"Remaining 50%"}).plot.area(figsize=(16, 9),
                                                               color=['#579d1c','#ffd320', '#ff420e', '#004586' ],
-                                                              grid=True,yticks=range(0,301,25))
+                                                              grid=True,yticks=range(0,25,5))
 #graph.legend(ncol=4)
 # totally abusing this.
 plt.suptitle("Number of Contributors Making Commits to Pagure Each Week",fontsize=24)

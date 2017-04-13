@@ -121,16 +121,16 @@ with open('data/%s.bucketed-activity.csv' % (discriminant), 'w') as f:
                if user == 'releng':
                    weekinfo.nonhuman['relengactions'] +=1
                    continue
-               elif user in bots:
+               if user in bots:
                    weekinfo.nonhuman['botactions'] +=1
                    continue
-               elif user in spammers:
+               if user in spammers:
                    weekinfo.nonhuman['spamactions'] +=1
                    if not user in firstseen:
                        firstseen[user]=starttime # todo: make this actual first time, not first week
                        weekinfo.nonhuman['newspammers'] +=1
                    continue
-               elif '@' in user:
+               if '@' in user:
                    # some msgs put email for anon users
                    continue
                 
